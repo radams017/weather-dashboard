@@ -7,8 +7,7 @@ var currentHumidEl = $('#current-humidity')
 var currentUvEl = $('#current-uv')
 var weatherContainEl = $('#weather-container');
 var savedContainEl = $('#saved-container');
-
-
+var locations = [];
 
 function getWeatherByCity(city) {
     let apiKey = '5eaa9a8fe5356358abebebe6eae3d828';
@@ -46,3 +45,30 @@ function printWeather(weatherObj) {
         currentUvEl.textContent = weatherObj.uvi;
     }
 };
+
+function renderLocations() {
+    savedContainEl.innerHTML = '';
+
+    // for (var i = 0; i < locations.length; i++) {
+    //     var location = locations[i];
+    //     $('li').
+
+        
+    // }
+}
+
+function saveToStorage () {
+    localStorage.setItem('locations', JSON.stringify(locations));
+}
+
+cityBtn.click((e) => {
+    e.preventDefault();
+
+    let locationVal = cityInput.val();
+
+    locations.push(locationVal);
+    cityInput.val('');
+
+    saveToStorage();
+    renderLocations();
+})
