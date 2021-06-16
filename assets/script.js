@@ -1,69 +1,48 @@
 var cityBtn = $('#cityBtn');
 var cityInput = $('#city');
-var currentCityEl = $('#current-city')
-var currentTempEl = $('#current-temp')
-var currentWindEl = $('#current-wind')
-var currentHumidEl = $('#current-humidity')
-var currentUvEl = $('#current-uv')
-var weatherContainEl = $('#weather-container');
 var savedContainEl = $('#saved-container');
 var locations = [];
 
-function getWeatherByCity(city) {
-    let apiKey = '5eaa9a8fe5356358abebebe6eae3d828';
-    let apiUrl = 'https://api.openweathermap.org/data/2.5/onecall?units=imperial&exclude=minutely,hourly,daily,alerts&q=' + city + '&appid=' + apiKey;
+var foundCity = null;
 
-    fetch(apiUrl)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (weatherCity) {
-        console.log(weatherCity)
-    });
-};
-
-function getWeatherByLat(lat, lon) {
+async function getWeatherByCoords(lat, lon, display) {
     let apiKey = '5eaa9a8fe5356358abebebe6eae3d828'
-    let apiUrl = 'https://api.openweathermap.org/data/2.5/onecall?units=imperial&exclude=minutely,hourly,daily,alerts&lat=' + lat + '&lon=' + lon + '&appid=' + apiKey;
-    
+    let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?units=imperial&exclude=minutely,hourly,daily,alerts&lat=${lat}&lon=${lon}&appid=${apiKey}`;
+
     fetch(apiUrl)
     .then(function (response) {
       return response.json();
     })
     .then(function (weatherRes) {
-        return (weatherRes);
+     if (typeof display == 'function') {
+         display(weatherRes)};
 })};
 
-function printWeather(weatherObj) {
-    if (weatherObj.temp) {
-        currentTempEl.textContent = weatherObj.temp;
-    } if (weatherObj.wind) {
-        currentWindEl.textContent = weatherObj.wind_speed;
-    } if (weatherObj.humidity) {
-        currentHumidEl.textContent = weatherObj.humidity;
-    } if (weatherObj.uvi) {
-        currentUvEl.textContent = weatherObj.uvi;
-    }
+function printWeather(weather) {  
+    $('#weather-container').empty().append(`
+    <div id="current-weather">
+                <h2 id="current-city">${foundCity.name}</h2>
+                </br>
+                <h3 id="current-date"></h3>
+                </br>
+                <h3 id="current-temp">Temp: ${weather.current.temp}</h3>
+                </br>
+                <h3 id="current-wind">Wind Speed: ${weather.current.wind_speed}</h3>
+                </br>
+                <h3 id="current-humidity">Humidity: ${weather.current.humidity}</h3>
+                </br>
+                <h3 id="current-uv">UV Index: ${weather.current.uvi}</h3>
+            </div>
+    `)
 };
-
-function renderLocations() {
-    savedContainEl.innerHTML = '';
-
-    // for (var i = 0; i < locations.length; i++) {
-    //     var location = locations[i];
-    //     $('li').
-
-        
-    // }
-}
 
 function saveToStorage () {
     localStorage.setItem('locations', JSON.stringify(locations));
 }
 
-cityBtn.click((e) => {
-    e.preventDefault();
+// cityBtn.click(() => getWeatherByLat(34, 92))
 
+function saveCity() {
     let locationVal = cityInput.val();
 
     locations.push(locationVal);
@@ -71,4 +50,13 @@ cityBtn.click((e) => {
 
     saveToStorage();
     renderLocations();
+};
+
+cityBtn.click(() => {
+    const citySearch = cityInput.val();
+    foundCity = usa_cities.find(city => city.name == citySearch);
+    if(!foundCity) {
+       return alert('City Not Found');
+    } 
+    getWeatherByCoords(foundCity.coord.lat, foundCity.coord.lon, printWeather);
 })
