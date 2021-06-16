@@ -18,7 +18,7 @@ async function getWeatherByCoords(lat, lon, display) {
          display(weatherRes)};
 })};
 
-function printWeather(weather) {  
+function displayWeather(weather) {  
     $('#weather-container').empty().append(`
     <div id="current-weather">
                 <h2 id="current-city">${foundCity.name}</h2>
@@ -36,27 +36,47 @@ function printWeather(weather) {
     `)
 };
 
-function saveToStorage () {
+function saveCityToStorage(city) {
+    locations.push(city);
     localStorage.setItem('locations', JSON.stringify(locations));
-}
-
-// cityBtn.click(() => getWeatherByLat(34, 92))
-
-function saveCity() {
-    let locationVal = cityInput.val();
-
-    locations.push(locationVal);
-    cityInput.val('');
-
-    saveToStorage();
-    renderLocations();
 };
 
-cityBtn.click(() => {
-    const citySearch = cityInput.val();
-    foundCity = usa_cities.find(city => city.name == citySearch);
+function loadLocationsFromStorage() {
+    locations = JSON.parse(localStorage.getItem('locations'))
+}
+
+function displaySavedCities(cities){
+    savedContainEl.empty();
+    cities.forEach(location => {
+        savedContainEl.append(`
+        <li><button class="btn btn-outline-dark mb-2" id="savedCity-${location.id}" onclick="searchSavedCity(${location.id})">${location.name}</button></li>
+        `)
+    })
+}
+
+function searchSavedCity(id) {
+    const cityName = $(`#savedCity-${id}`)[0].innerHTML
+    getCityWeather(cityName)
+}
+
+function getCityWeather(cityName){
+    foundCity = usa_cities.find(city => city.name == cityName);
     if(!foundCity) {
        return alert('City Not Found');
     } 
-    getWeatherByCoords(foundCity.coord.lat, foundCity.coord.lon, printWeather);
+    getWeatherByCoords(foundCity.coord.lat, foundCity.coord.lon, displayWeather)
+    return foundCity
+}
+
+cityBtn.click(() => {
+    const citySearch = cityInput.val();
+    const foundCity = getCityWeather(citySearch)
+    cityInput.val('');
+    saveCityToStorage(foundCity);
+    displaySavedCities(locations);
+})
+
+$(document).ready(() => {
+    loadLocationsFromStorage()
+    displaySavedCities(locations)
 })

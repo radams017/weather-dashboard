@@ -16,6 +16,10 @@ h2 {
     font-weight: bolder;
 }
 
+li {
+    list-style: none;
+}
+
 .gradient-custom {
     /* Chrome 10-25, Safari 5.1-6 */
     background: -webkit-linear-gradient(to right, rgba(72, 198, 239, 1), rgba(111, 134, 214, 1));
