@@ -77,6 +77,8 @@ cityBtn.click(() => {
 })
 
 $(document).ready(() => {
+    if(foundCity != null){
     loadLocationsFromStorage()
     displaySavedCities(locations)
-})
+    }
+});
